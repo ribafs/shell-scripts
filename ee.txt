@@ -1,0 +1,9 @@
+Easy engine.
+Instalador do wordpress
+
+https://github.com/EasyEngine/easyengine
+
+wget -qO ee rt.cx/ee && sudo bash ee # install easyengine
+sudo ee site create example.com --wp # install wordpress on example.com
+
+instala BD, PHP e Nginx com um único comando.

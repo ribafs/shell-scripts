@@ -1,0 +1,188 @@
+Scripts instaladores
+
+#!/bin/bash
+# ******************************************
+# Program: LAMP Stack Installation Script
+# Developer: Pratik Patil
+# Date: 10-04-2015
+# Last Updated: 11-01-2016
+# ******************************************
+
+if [ "`lsb_release -is`" == "Ubuntu" ] || [ "`lsb_release -is`" == "Debian" ]
+then
+    sudo apt-get -y install mysql-server mysql-client mysql-workbench libmysqld-dev;
+    sudo apt-get -y install apache2 php5 libapache2-mod-php5 php5-mcrypt phpmyadmin;
+    sudo chmod 755 -R /var/www/;
+    sudo printf "<?php\nphpinfo();\n?>" > /var/www/html/info.php;
+    sudo service apache2 restart;
+
+elif [ "`lsb_release -is`" == "CentOS" ] || [ "`lsb_release -is`" == "RedHat" ]
+then
+    sudo yum -y install httpd mysql-server mysql-devel php php-mysql php-fpm;
+    sudo yum -y install epel-release phpmyadmin rpm-build redhat-rpm-config;
+    sudo yum -y install mysql-community-release-el7-5.noarch.rpm proj;
+    sudo yum -y install tinyxml libzip mysql-workbench-community;
+    sudo chmod 777 -R /var/www/;
+    sudo printf "<?php\nphpinfo();\n?>" > /var/www/html/info.php;
+    sudo service mysqld restart;
+    sudo service httpd restart;
+    sudo chkconfig httpd on;
+    sudo chkconfig mysqld on;
+
+else
+    echo "Unsupported Operating System";
+fi
+https://stackoverflow.com/questions/29669320/automated-installation-of-lamp-stack-using-shell-script#29669729
+
+
+case "lsb_release" in 
+
+    Ubuntu  )
+        ... ;;
+    Debian  )
+        ... ;;
+    Centos  )
+        ... ;;
+esac
+
+echo 'installing LAMP Stack' &&
+echo '=====================' &&
+sudo apt-get update &&
+
+echo 'installing Apache server' &&
+sudo apt-get install -y apache2 &&
+
+echo 'installing MySQL' &&
+#will ask the password of root user two times (password=123456 i chose)
+sudo apt-get -y install -y mysql-server php5-mysql &&
+
+echo 'commands to get our MySQL environment set up securely' &&
+echo 'MySQL to create its database directory structure where it will store its information' &&
+sudo mysql_install_db &&
+echo 'script that will remove some dangerous defaults and lock down access to our database system a little bit.' &&
+#You will be asked to enter the password you set for the MySQL root account. Next, it will ask you if you want to change that password. If you are happy with your current password, type "n" for "no" at the prompt. For the rest of the questions, you should simply hit the "ENTER" key through each prompt to accept the default values.
+sudo mysql_secure_installation &&
+
+echo 'installing PHP' &&
+sudo apt-get install -y php5 libapache2-mod-php5 php5-mcrypt &&
+
+echo 'installing php modules' &&
+# list of modules
+#sudo apt-get install -y php5-cgi && 		# server-side, HTML-embedded scripting language (CGI binary)
+#sudo apt-get install -y php5-cli && 		# command-line interpreter for the php5 scripting language
+#sudo apt-get install -y php5-common && 	# Common files for packages built from the php5 source
+#sudo apt-get install -y php5-curl && 		# CURL module for php5
+#sudo apt-get install -y php5-dbg && 		# Debug symbols for PHP5
+#sudo apt-get install -y php5-dev && 		# Files for PHP5 module development
+#sudo apt-get install -y php5-gd && 		# GD module for php5
+#sudo apt-get install -y php5-gmp && 		# GMP module for php5
+#sudo apt-get install -y php5-json && 		# JSON module for php5
+#sudo apt-get install -y php5-ldap && 		# LDAP module for php5
+#sudo apt-get install -y php5-mysql && 		# MySQL module for php5
+#sudo apt-get install -y php5-odbc && 		# ODBC module for php5
+#sudo apt-get install -y php5-pgsql && 		# PostgreSQL module for php5
+#sudo apt-get install -y php5-pspell && 	# pspell module for php5
+#sudo apt-get install -y php5-readline && 	# Readline module for php5
+#sudo apt-get install -y php5-recode && 	# recode module for php5
+#sudo apt-get install -y php5-snmp && 		# SNMP module for php5
+#sudo apt-get install -y php5-sqlite && 	# SQLite module for php5
+#sudo apt-get install -y php5-tidy && 		# tidy module for php5
+#sudo apt-get install -y php5-xmlrpc && 	# XML-RPC module for php5
+#sudo apt-get install -y php5-xsl && 		# XSL module for php5
+#sudo apt-get install -y libphp5-embed && 	# HTML-embedded scripting language (Embedded SAPI library)
+#sudo apt-get install -y php5-adodb && 		# Extension optimising the ADOdb database abstraction library
+#sudo apt-get install -y php5-apcu && 		# APC User Cache for PHP 5
+#sudo apt-get install -y php5-enchant && 	# Enchant module for php5
+#sudo apt-get install -y php5-exactimage &&	# fast image manipulation library (PHP bindings)
+#sudo apt-get install -y php5-fpm && 		# server-side, HTML-embedded scripting language (FPM-CGI binary)
+#sudo apt-get install -y php5-gdcm && 		# Grassroots DICOM PHP5 bindings
+#sudo apt-get install -y php5-gearman && 	# PHP wrapper to libgearman
+#sudo apt-get install -y php5-geoip && 		# GeoIP module for php5
+#sudo apt-get install -y php5-gnupg && 		# wrapper around the gpgme library
+#sudo apt-get install -y php5-imagick &&	# ImageMagick module for php5
+#sudo apt-get install -y php5-imap && 		# IMAP module for php5
+#sudo apt-get install -y php5-interbase && 	# interbase/firebird module for php5
+#sudo apt-get install -y php5-intl && 		# internationalisation module for php5
+#sudo apt-get install -y php5-lasso && 		# Library for Liberty Alliance and SAML protocols - PHP 5 bindings
+#sudo apt-get install -y php5-librdf && 	# PHP5 language bindings for the Redland RDF library
+#sudo apt-get install -y php5-mapscript && 	# php5-cgi module for MapServer
+#sudo apt-get install -y php5-mcrypt && 	# MCrypt module for php5
+#sudo apt-get install -y php5-memcache && 	# memcache extension module for PHP5
+#sudo apt-get install -y php5-memcached && 	# memcached extension module for PHP5, uses libmemcached
+#sudo apt-get install -y php5-midgard2 && 	# Midgard2 Content Repository - PHP5 language bindings and module
+#sudo apt-get install -y php5-ming && 		# Ming module for php5
+#sudo apt-get install -y php5-mongo && 		# MongoDB database driver
+#sudo apt-get install -y php5-msgpack && 	# PHP extension for interfacing with MessagePack
+#sudo apt-get install -y php5-mysqlnd && 	# MySQL module for php5 (Native Driver)
+#sudo apt-get install -y php5-mysqlnd-ms && 	# MySQL replication and load balancing module for PHP
+#sudo apt-get install -y php5-oauth && 		# OAuth 1.0 consumer and provider extension
+#sudo apt-get install -y php5-pinba && 		# Pinba module for PHP 5
+#sudo apt-get install -y php5-ps && 		# ps module for PHP 5
+#sudo apt-get install -y php5-radius && 	# PECL radius module for PHP 5
+#sudo apt-get install -y php5-redis && 		# PHP extension for interfacing with Redis
+#sudo apt-get install -y php5-remctl && 	# PECL module for Kerberos-authenticated command execution
+#sudo apt-get install -y php5-rrd && 		# PHP bindings to rrd tool system
+#sudo apt-get install -y php5-sasl && 		# Cyrus SASL Extension
+#sudo apt-get install -y php5-stomp && 		# Streaming Text Oriented Messaging Protocol (STOMP) client module for PHP 5
+#sudo apt-get install -y php5-svn && 		# PHP Bindings for the Subversion Revision control system
+#sudo apt-get install -y php5-sybase && 	# Sybase / MS SQL Server module for php5
+#sudo apt-get install -y php5-tokyo-tyrant && 	# PHP interface to Tokyo Cabinet's network interface, Tokyo Tyrant
+#sudo apt-get install -y php5-vtkgdcm && 	# Grassroots DICOM VTK PHP bindings
+#sudo apt-get install -y php5-xcache && 	# Fast, stable PHP opcode cacher
+#sudo apt-get install -y php5-xdebug && 	# Xdebug Module for PHP 5
+#sudo apt-get install -y php5-xhprof && 	# Hierarchical Profiler for PHP5
+
+echo 'installing php myadmin' &&
+#will be asked to chose database lighthttpd ad apache2 select apache2
+#will ask for database administrator password=123456 in my case + retry
+sudo apt-get install -y phpmyadmin &&
+sudo php5enmod mcrypt &&
+
+echo 'restarting pache service' &&
+sudo service apache2 restart &&
+
+echo 'cleanup' &&
+sudo apt-get -f install &&
+sudo apt-get autoremove &&
+sudo apt-get -y autoclean &&
+sudo apt-get -y clean &&
+
+#knowing your public ip from http://icanhazip.com/
+
+sensible-browser 'http://localhost/'
+
+
+#!/bin/bash
+# ******************************************
+# Program: LAMP Stack Installation Script
+# Developer: Pratik Patil
+# Date: 10-04-2015
+# Last Updated: 11-01-2016
+# ******************************************
+
+if [ "`lsb_release -is`" == "Ubuntu" ] || [ "`lsb_release -is`" == "Debian" ]
+then
+    sudo apt-get -y install mysql-server mysql-client mysql-workbench libmysqld-dev;
+    sudo apt-get -y install apache2 php5 libapache2-mod-php5 php5-mcrypt phpmyadmin;
+    sudo chmod 755 -R /var/www/;
+    sudo printf "<?php\nphpinfo();\n?>" > /var/www/html/info.php;
+    sudo service apache2 restart;
+
+elif [ "`lsb_release -is`" == "CentOS" ] || [ "`lsb_release -is`" == "RedHat" ]
+then
+    sudo yum -y install httpd mysql-server mysql-devel php php-mysql php-fpm;
+    sudo yum -y install epel-release phpmyadmin rpm-build redhat-rpm-config;
+    sudo yum -y install mysql-community-release-el7-5.noarch.rpm proj;
+    sudo yum -y install tinyxml libzip mysql-workbench-community;
+    sudo chmod 777 -R /var/www/;
+    sudo printf "<?php\nphpinfo();\n?>" > /var/www/html/info.php;
+    sudo service mysqld restart;
+    sudo service httpd restart;
+    sudo chkconfig httpd on;
+    sudo chkconfig mysqld on;
+
+else
+    echo "Unsupported Operating System";
+fi
+
+
