@@ -1,0 +1,31 @@
+gxmessage
+gtkrc-2.0.mono8
+git clone git://github.com/chipx86/gtkparasite
+https://wiki.gnome.org/action/show/Projects/GTK/Inspector - gtkinspector
+
+sudo apt install yad
+https://groups.google.com/g/yad-common
+
+sudo apt install wxglade
+http://wxglade.sourceforge.net/docs/intro.html#program-windows
+http://wxglade.sourceforge.net/docs/index.html
+https://sourceforge.net/p/wxglade/mailman/wxglade-general/
+http://wxglade.sourceforge.net/index.php
+
+http://www.dialogblocks.com/ C++
+
+https://www.autoitscript.com/site/autoit/downloads/ - BASIC (for windows)
+
+https://www.kdevelop.org/  C, C++, Python, QML/JavaScript and PHP
+sudo apt install kdevelop
+wget -O KDevelop.AppImage https://download.kde.org/stable/kdevelop/5.6.1/bin/linux/KDevelop-5.6.1-x86_64.AppImage
+chmod +x KDevelop.AppImage
+./KDevelop.AppImage
+
+https://glade.gnome.org/ - By using GtkBuilder, Glade XML files can be used in numerous programming languages including C, C++, C#, Vala, Java, Perl, Python,and others.
+
+http://smallbasic.github.io/
+
+https://smallbasic-publicwebsite.azurewebsites.net/ - windows
+
+http://gambas.sourceforge.net/en/main.html

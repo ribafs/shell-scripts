@@ -1,0 +1,20 @@
+Claro que existe! Em Shell tem dezenas de formas diferentes para fazer qq coisa. No UNIX eu fiz 2 prg que tenho até hj, mas não sei se o ano 200 bugou eles: um transforma uma data em qtde de dias decorridos a partir de 01/01/1980 e outro faz o caminho inverso, isto é, interpreta um número como a qdte de dias decorridos a partir de 01/01/1980 e o transforma em uma data. Gosto muito desse método pois posso dizer a data de 48 dias atrás, que data será daqui a 34 dias e subtrair duas datas. Se vc quiser, me peça poe e-mail, mas já vou avisando: não tem garantia, fiz há uns 30 anos.
+Outra forma é o cmd date que com a opção -d pode estipular uma data e a flag %s te devolve a qtde de segundos a partir de 1970-01-01 00:00:00 UTC e aí vc pode fazer uma funçãozinha (repare que em bash é tudo no diminutivo) que vai te resolver o problema fácil, fácil.
+
+function DifData
+{
+    d1=$(date -d "$1" +%s)
+    d2=$(date -d "$2" +%s)
+    echo $(( (d1 - d2) / 86400 )) dias
+}
+$ DifData '1 Jun' today
+25 dias
+
+Obs:
+
+$ echo $((60*60*24))  # Seg*Min*Horas
+86400
+
+=============
+
+

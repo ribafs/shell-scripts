@@ -1,0 +1,1 @@
+Colours are defined in the RC file. You can create a sample with the --create_rc option, and then redefine the colours as you see fit. Set the DIALOGRC environment variable to select an RC file. (And see man dialog for some details.) 

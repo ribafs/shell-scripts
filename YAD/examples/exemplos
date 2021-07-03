@@ -1,0 +1,159 @@
+#!/bin/bash
+#######################################################
+# Description:                                        #
+#   bash script to run dropdown list                  #
+#   via yad list UI                                   #
+#######################################################
+
+ERR(){ echo "ERROR: $1" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{xdotool,yad,xargs,printf,strace} /bin/echo; {
+    [ -x "$DEP" ] || {
+        ERR "$LINENO Dependency '$DEP' not met."
+        DEPCOUNT+=1
+        }
+}
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+VERSION=`yad --version | awk '{ print $1 }'`
+verlte() {
+    [  "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]
+}
+
+verlt() {
+    [ "$1" = "$2" ] && return 1 || verlte $1 $2
+}
+
+if verlt $VERSION 0.38.2; then
+   yad --text=" The version of yad installed is too old for to run this program, \n Please upgrade yad to a version higher than 0.38.2   " \
+       --button="gtk-close"
+   exit
+fi
+
+# Ensures only one instance of this scipt can start
+# Also, if there is another yad window closes it
+if [[ $(pgrep -c $(basename $0)) -ne 1 ]]; then
+   pids="$(xdotool search --class "yad_launcer")"
+   wpid="$(xdotool getwindowfocus)"
+
+   for pid in $pids; do
+        # Compares window class pid with the pid of a window in focus
+        if [[ "$pid" == "$wpid" ]]; then
+           xdotool windowunmap $pid
+           exit 1
+        fi
+   done
+fi
+
+#######################################################
+# Here you define columns:                            #
+#   icon, command, application name, description      #
+#                                                     #
+#######################################################
+
+# --- You can change this part
+
+# For the icons you can also write full path
+# [key]="icon"
+declare -A ICON=(
+		   [0]="aqualung"
+		   [1]="gtk-ok"
+		   [2]="gcolor2"
+		   [3]="gweled"
+		   [4]="minitube"
+		   [5]="gtk-ok"
+		   [6]="qmmp"
+		   [7]="shutter"
+                )
+
+# [key]="command"
+declare -A APPS=(
+		   [0]="/usr/bin/aqualung"
+		   [1]="/usr/bin/frozen-bubble"
+		   [2]="/usr/bin/gcolor2"
+		   [3]="/usr/games/gweled"
+		   [4]="/usr/bin/minitube"
+		   [5]="/usr/bin/neverball"
+		   [6]="/usr/bin/qmmp"
+		   [7]="/usr/bin/shutter"
+                )
+
+# Application name for the column
+# [key]="app name"
+declare -A APP_NAME=(
+		   [0]="Aqualung"
+		   [1]="Frozen Bubble"
+		   [2]="Gcolor2"
+		   [3]="Gweled"
+		   [4]="Mini Tube"
+		   [5]="Neverball"
+		   [6]="Qmmp"
+		   [7]="Shutter"
+                )
+
+# [key]="description"
+declare -A APP_DESC=(
+		   [0]="Music player"
+		   [1]="Game"
+		   [2]="Color selector"
+		   [3]="Puzzle game"
+		   [4]="Youtube"
+		   [5]="Game"
+		   [6]="Music player"
+		   [7]="For screenshots"
+                )
+
+APP_TITLE="Launcher"
+
+# Activation method can be select or dclick
+#   select - run application on selection
+#   dclick - run application on double-click
+ACTION=select
+
+# --- Don't change anything bellow'
+
+_list()
+{
+for k in "${!APPS[@]}"; do
+        printf "%s\n%s\n%s\n%s\n" "${ICON[$k]}" "${APPS[$k]}" "${APP_NAME[$k]}" "${APP_DESC[$k]}" 
+done
+}
+
+
+_list | yad --list \
+              --title="$APP_TITLE" \
+              --column="icon":IMG \
+              --column="Command" \
+              --column="Application" \
+              --column="Description" \
+              --width="500" \
+              --height="450" \
+              --hide-column="2" \
+              --$ACTION-action="sh -c \"echo %s | cut -d ' ' -f 2 2>&1 | xargs sh -c >/dev/null 2>&1\"" \
+              --no-buttons  \
+              --search-column=3 \
+              --window-icon="xfce4-desktop" \
+              --undecorated \
+              --close-on-unfocus \
+              --on-top \
+              --skip-taskbar \
+              --mouse \
+              --sticky \
+              --class="yad_launcer" & ICONS_PID=$!
+
+# Command is executed when SIGCHLD signal is emited
+# Monitor for SIGCHLD signal and exit 252
+# Exit if SIGCHLD is emited
+strace -p $ICONS_PID -e trace=signal -s 32 2>&1 \
+| while read -r line; do
+        if [[ $line =~ "--- SIGCHLD" ]];then
+           # Close on launch
+           exit 0
+         elif [[ $line == "+++ exited with 252 +++" ]]; then
+           # Yad is closed on unfocus or Escape keypress
+           exit 252
+         fi
+done
+
+

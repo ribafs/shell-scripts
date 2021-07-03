@@ -1,0 +1,299 @@
+#!/bin/bash
+# Fancy alarm Misko_2083 @ 2020
+# Requires: at, yad 0.42 (with html dialog), mpv
+
+#########################
+# Begin User Interface  #
+#########################
+
+# JavaScript, HTML and CSS
+
+YURI="$(cat << EOF
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!--CSS for the page-->
+<style>
+.body, .html {
+  overflow-y: hidden;
+  cursor: default;
+  background-color: #CECECE;
+}
+
+#jsalarmclock{
+font-weight: bold;
+font-size: 14px;
+}
+
+#jsalarmclock div{
+margin-bottom: 0.8em;
+}
+
+#jsalarmclock div.leftcolumn{
+float: left;
+width: 150px;
+font-size: 14px;
+clear: left;
+}
+
+#jsalarmclock span{
+ margin-right: 10px;
+}
+
+#jsalarmclock input[type=number]{
+ width: 50px;
+}
+
+p {
+ font-weight: bold;
+ font-size: 11px;
+}
+
+.default:hover {
+  background: #000000;
+  color: white;
+  text-decoration: none;
+}
+
+.title {
+ font-size: 10px
+ cursor: default;
+}
+</style>
+
+<!--Script to prevent right click menu-->
+<script type="text/javascript">
+    if (document.addEventListener) { // IE >= 9; other browsers
+        document.addEventListener('contextmenu', function(e) {
+            //here you do nothing
+            e.preventDefault();
+        }, false);
+    } else { // IE < 9
+        document.attachEvent('oncontextmenu', function() {
+            alert("You've tried to open context menu");
+            window.event.returnValue = false;
+        });
+    }
+</script>
+
+
+<script type="text/javascript">
+
+/***********************************************
+
+* JavaScript Alarm Clock- by JavaScript Kit (www.javascriptkit.com)
+* This notice must stay intact for usage
+* Visit JavaScript Kit at http://www.javascriptkit.com/ for this script and 100s more
+
+***********************************************/
+
+/* Modified for my needs Misko_2083 */
+
+var jsalarm={
+	padfield:function(f){
+		return (f<10)? "0"+f : f
+	},
+	showcurrenttime:function(){
+		var dateobj=new Date()
+		var ct=this.padfield(dateobj.getHours())+":"+this.padfield(dateobj.getMinutes())+":"+this.padfield(dateobj.getSeconds())
+		this.ctref.innerHTML=ct
+		this.ctref.setAttribute("title", ct)
+	},
+	init:function(){
+		var dateobj=new Date()
+		this.ctref=document.getElementById("jsalarm_ct")
+		this.submitref=document.getElementById("submitbutton")
+		this.submitref.onclick=function(){
+			jsalarm.setalarm()
+			//this.value="Alarm Set"
+			this.disabled=false
+			return false
+		}
+		var selections=document.getElementsByTagName("select")
+		this.hourselect=selections[0]
+		this.minuteselect=selections[1]
+		for (var i=0; i<60; i++){
+			if (i<24) //If still within range of hours field: 0-23
+			this.hourselect[i]=new Option(this.padfield(i), this.padfield(i), false, dateobj.getHours()==i)
+			this.minuteselect[i]=new Option(this.padfield(i), this.padfield(i), false, dateobj.getMinutes()+1==i)
+
+		}
+		jsalarm.showcurrenttime()
+		jsalarm.timer=setInterval(function(){jsalarm.showcurrenttime()}, 1000)
+	},
+        info:function(a) {
+                var h = document.createElement("p");
+                var filename = String(a).replace(/^.*[\\\/]/, '');
+                var t = document.createTextNode("Alarm "+filename);
+                h.appendChild(t);
+                document.body.appendChild(h);
+                h.setAttribute("id", "info");
+        },
+        dom:function(a){
+                // DOM 2 Events
+                var dispatchMouseEvent = function(target, var_args) {
+                  var e = document.createEvent("MouseEvents");
+                  // If you need clientX, clientY, etc., you can call
+                  // initMouseEvent instead of initEvent
+                  e.initEvent.apply(e, Array.prototype.slice.call(arguments, 1));
+                  target.dispatchEvent(e);
+                };
+                dispatchMouseEvent(a, 'mouseover', true, true);
+                dispatchMouseEvent(a, 'mousedown', true, true);
+                dispatchMouseEvent(a, 'click', true, true);
+                dispatchMouseEvent(a, 'mouseup', true, true);
+        },
+	setalarm:function(){
+		this.hourwake=this.hourselect.options[this.hourselect.selectedIndex].value
+		this.minutewake=this.minuteselect.options[this.minuteselect.selectedIndex].value
+                var a = document.createElement('a');
+                var linkText = document.createTextNode("Go");
+                a.appendChild(linkText);
+                a.title = "fake link";
+
+                a.href = this.hourselect.options[this.hourselect.selectedIndex].value+":"+this.minuteselect.options[this.minuteselect.selectedIndex].value;
+                jsalarm.dom(a)
+                jsalarm.info(a)
+                a.href = "repeat@"+document.getElementById("repeat").value;
+                jsalarm.dom(a)
+                if(document.getElementById("forever").checked == true) {
+                  a.href = "repeat@"+document.getElementById("forever").value;
+                  jsalarm.dom(a)
+                }
+                a.href = "command@"+document.getElementById("command").value;
+                jsalarm.dom(a)
+                //a.parentNode.removeChild(linkText);
+		//this.hourselect.disabled=true
+		//this.minuteselect.disabled=true
+	}
+
+}
+
+</script>
+</head>
+<body class="body">
+<br />
+
+ <form action="" method="">
+  <div id="jsalarmclock">
+  <div><div class="leftcolumn">Current Time:</div> <span id="jsalarm_ct" style="letter-spacing: 2px"></span></div>
+  <div><div class="leftcolumn">Set Alarm:</div> <span><select></select> Hour</span> <span><select></select> Minutes</span> </div>
+
+  <div><div class="leftcolumn">Repeat:</div><input size="5" type="number" id="repeat" min="1" value="1"/>  <br>
+        <div class="leftcolumn">Loop forever</div> <input type="checkbox" id="forever" value="forever"/>
+       <span style="font: normal 11px Tahoma">Loop forever overides repeat</span> <br>
+  <div><div class="leftcolumn">Set file:</div><a href="file:///musicfile@"><button type="button">Select a file to play</button></a>
+             <span style="font: normal 11px Tahoma">Select a file to run with mpv or type in a custom action</span></div>
+  <div><div class="leftcolumn">Set Custom Action:</div> <input type="text" id="command" size="55" value="" /> <br>
+       <span style="font: normal 11px Tahoma">*Command to launch, if empty mpv will be used (do not use "@" character here)</span></div>
+  <input type="submit" value="Set Alarm!" id="submitbutton" />
+
+  </div>
+</form>
+
+<a href="file:///atq@"><button type="button">At Job List</button></a>
+
+<script type="text/javascript">
+
+jsalarm.init()
+
+</script>
+</body>
+</html>
+EOF
+)"
+#########################
+# End of User interface #
+#########################
+
+#########################
+# Bash functions        #
+#########################
+
+# Main window
+function _yad_ui(){
+    # Set the line buffering with stdbuf
+    echo "${YURI}" | stdbuf -oL -eL yad --title="Set Alarm" --width=650 --height=500 --no-escape \
+    --html --no-buttons --print-uri --borders=0 --window-icon="alarm1c.png" 2>&1 & echo $!
+}
+
+# Main Function
+function _do_stuff(){
+    # fetch yad process id
+    read YAD_PID
+
+    # read yad stdout line by line
+    while read -r line
+    do
+        case ${line##*/} in
+         [0-9][0-9]:[0-9][0-9]*)
+            #kill -SIGUSR1 $YAD_PID
+            echo "Alarm set to: ${line##*/}"
+            alarm_time="${line##*/}"           
+;;
+                   repeat@*) REPEAT="$(echo  "${line##*@}" | sed 's/%20/ /g')"
+;;
+                   command@*) COMMAND="$(echo  "${line##*@}" | sed 's/%20/ /g')"
+
+if [ ! -e "/tmp/yalarm.$$" ] ; then
+      MUSIC="$(yad --width=600 --height=500 \
+                    --title="Alarm" --text="Select a file to play in mpv" \
+                    --file-filter="Audio | *.mp3 *.MP3 *.wav *.WAV *.ogg *.OGG" \
+                    --file 2>/dev/null)"
+      [ $? != 0 ] && continue
+       echo "${MUSIC}" > /tmp/yalarm.$$
+fi
+
+# Fredx181
+hrnow=$(echo $(date +"%k"))
+
+# For when trying to set alarm for next day e.g. from current 21:00 to target 6:00
+if [ "${alarm_time%%:*}" -eq "$hrnow" ] &&  [ "${alarm_time##*:}" -le "$(date +"%M")" ]; then
+    # prompt yes/no in case accidentally chosen current hour but less than current minute
+    yad --center --title="Are you sure?" --text="Are you sure to set the alarm to ${alarm_time} - tomorrow ?" --width=400 --button="Yes:0"  --button="No:1"
+[ $? -ne 0 ] &&  continue 
+fi
+
+if [ ! "${COMMAND}" = "" ]; then
+at "${alarm_time}" << EOF
+exec env DISPLAY="$DISPLAY" $(echo  "${line##*@}" | sed 's/%20/ /g') &
+EOF
+else
+    if [  "${REPEAT}" = "forever" ]; then
+at "${alarm_time}" << EOF
+exec env DISPLAY="$DISPLAY" mpv --force-window --loop inf "$(cat /tmp/yalarm.$$)"
+EOF
+    else
+at "${alarm_time}" << EOF
+exec env DISPLAY="$DISPLAY" mpv --force-window --loop "${REPEAT}" "$(cat /tmp/yalarm.$$)"
+EOF
+   fi
+fi
+
+;;
+                   atq@*) (REMOVE_JOB="$(atq | yad --list --width=600 --height=500 \
+                                                  --text="Select 'at' job to remove or close this window" \
+                                                  --column "Job List" \
+                                                  --button="Remove at Job" 2>/dev/null \
+                                            | awk '{print $1}')"
+                          if [[ "${REMOVE_JOB}" == [0-9]* ]]; then
+                             echo "${REMOVE_JOB}"
+                             atrm "${REMOVE_JOB}"
+                             killall mpv
+                          fi) &                      
+;;
+                   musicfile@*) (MUSIC="$(yad --width=600 --height=500 \
+                                              --title="Alarm" --text="Select a file to play in mpv" \
+                                              --file-filter="Audio | *.mp3 *.wav" \
+                                              --file 2>/dev/null)" \
+                                               [ $? = 0 ] && echo "${MUSIC}" > /tmp/yalarm.$$) &
+;;
+       esac 
+    done
+rm /tmp/yalarm.$$
+exit
+}
+
+_yad_ui | _do_stuff & wait $! 2>/dev/null

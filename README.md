@@ -1,2 +1,2 @@
 # shell-scripts
-Usando o shell script no Linux
+Material sobre Shell Scripts Linux

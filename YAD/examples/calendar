@@ -1,0 +1,13 @@
+DATA=$(\
+yad --calendar \
+--day=9 \
+--month=5 \
+--year=2021 \
+--date-format=%d\/%m\/%Y \
+--title=Calendario \
+--center \ # disposição do diálogo na tela
+)
+# mostra um diálogo informando a $DATA selecionada
+yad --title="AVISO" \
+--text="Você selecionou a data $DATA"
+#.EOF

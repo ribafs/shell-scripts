@@ -1,0 +1,8 @@
+Executar scripts shell com PHP
+
+$old_path = getcwd();
+chdir('/usr/local/bin/');
+$output = shell_exec('./cms');
+chdir($old_path);
+echo "<pre>$output</pre>";
+
